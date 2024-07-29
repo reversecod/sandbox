@@ -1,6 +1,8 @@
 #include <iostream>
-#include <cmath>
+#include <iomanip>  // Para setprecision
+#include <sstream>  // Para stringstream
 #include <map>
+#include <vector>
 using namespace std;
 
 #ifdef _WIN32
@@ -19,21 +21,39 @@ private:
     float limite_credito;
     float fatura;
     float caixinha;
+    vector<string> historico;
+
+    string formatar_valor(float valor) {
+        stringstream ss;
+        ss << fixed << setprecision(2) << valor;
+        return ss.str();
+    }
 
 public:
     ContaBancaria(float saldo, float limite_credito)
         : saldo(saldo), limite_credito(limite_credito), fatura(0), caixinha(0) {}
 
+    void registrar_acao(const string& acao) {
+        if (historico.size() == 5) {
+            historico.erase(historico.begin());
+        }
+        historico.push_back(acao);
+    }
+
     void depositar(float valor) {
         saldo += valor;
-        cout << "Deposito de R$" << valor << " realizado." << endl;
+        string acao = "Deposito de R$" + formatar_valor(valor) + " realizado. Saldo atual: R$" + formatar_valor(saldo);
+        registrar_acao(acao);
+        cout << acao << endl;
     }
 
     void sacar(float valor, bool debito = true) {
         if (debito) {
             if (saldo >= valor) {
                 saldo -= valor;
-                cout << "Saque de R$" << valor << " realizado no debito." << endl;
+                string acao = "Saque de R$" + formatar_valor(valor) + " realizado no debito. Saldo atual: R$" + formatar_valor(saldo);
+                registrar_acao(acao);
+                cout << acao << endl;
             } else {
                 cout << "Saldo insuficiente." << endl;
             }
@@ -43,7 +63,9 @@ public:
             } else if (limite_credito >= valor) {
                 limite_credito -= valor;
                 fatura += valor;
-                cout << "Gasto de R$" << valor << " realizado no credito." << endl;
+                string acao = "Gasto de R$" + formatar_valor(valor) + " realizado no credito. Fatura atual: R$" + formatar_valor(fatura);
+                registrar_acao(acao);
+                cout << acao << endl;
             } else {
                 cout << "Limite de credito ultrapassado." << endl;
             }
@@ -51,34 +73,41 @@ public:
     }
 
     void pagar_fatura(char answer) {
-        if (answer == 'Y' && saldo >= fatura) {
-            saldo -= fatura;
-            float valorpago = fatura;
-            limite_credito += fatura;
-            fatura -= fatura;
-            cout << "Pagamento total da fatura de R$" << valorpago << " realizado. Saldo e credito atualizados." << endl;
-        } else if (answer == 'Y' && saldo < fatura) {
-            cout << "Voce nao possui saldo o suficiente para pagar toda a fatura!";
+        if (answer == 'Y') {
+            if (saldo >= fatura) {
+                saldo -= fatura;
+                float valorpago = fatura;
+                limite_credito += fatura;
+                fatura = 0;
+                string acao = "Pagamento total da fatura de R$" + formatar_valor(valorpago) + " realizado. Saldo atual: R$" + formatar_valor(saldo) + ". Limite de crédito atual: R$" + formatar_valor(limite_credito);
+                registrar_acao(acao);
+                cout << acao << endl;
+            } else {
+                cout << "Voce nao possui saldo o suficiente para pagar toda a fatura!" << endl;
+            }
         } else if (answer == 'N') {
             float valor;
             cout << "Digite o valor a pagar da fatura: R$";
             cin >> valor;
-                if (fatura >= valor) {
-                    saldo -= valor;
-                    limite_credito += valor;
-                    fatura -= valor;
-                    cout << "Pagamento de fatura de R$" << valor << " realizado. Saldo e credito atualizados." << endl;
-                } else {
-                    cout << "Valor da fatura excede o valor a pagar." << endl;
-                }
-        }else
-            cout << "Alternativa inválida!";   
-}
+            if (fatura >= valor) {
+                saldo -= valor;
+                limite_credito += valor;
+                fatura -= valor;
+                string acao = "Pagamento parcial de fatura de R$" + formatar_valor(valor) + " realizado. Fatura restante: R$" + formatar_valor(fatura) + ". Saldo atual: R$" + formatar_valor(saldo) + ". Limite de crédito atual: R$" + formatar_valor(limite_credito);
+                registrar_acao(acao);
+                cout << acao << endl;
+            } else {
+                cout << "Valor da fatura excede o valor a pagar." << endl;
+            }
+        } else {
+            cout << "Alternativa invalida!" << endl;
+        }
+    }
 
     void status_conta() {
-        cout << "Saldo: R$" << saldo << endl;
-        cout << "Fatura: R$" << fatura << endl;
-        cout << "Limite de credito: R$" << limite_credito << endl;
+        cout << "Saldo: R$" << formatar_valor(saldo) << endl;
+        cout << "Fatura: R$" << formatar_valor(fatura) << endl;
+        cout << "Limite de credito: R$" << formatar_valor(limite_credito) << endl;
     }
 
     pair<int, int> passar_dia(int dia_atual, int mes_atual) {
@@ -105,26 +134,69 @@ public:
         if (valor <= saldo) {
             saldo -= valor;
             caixinha += valor;
-            cout << "Adicionado R$" << valor << " a caixinha." << endl;
+            string acao = "Adicionado R$" + formatar_valor(valor) + " a caixinha. Saldo atual: R$" + formatar_valor(saldo) + ". Valor na caixinha: R$" + formatar_valor(caixinha);
+            registrar_acao(acao);
+            cout << acao << endl;
         } else {
             cout << "Valor excede o saldo disponível para adicionar a caixinha." << endl;
         }
     }
 
     void verificar_caixinha() {
-        cout << "Valor na caixinha: R$" << caixinha << endl;
+        cout << "Valor na caixinha: R$" << formatar_valor(caixinha) << endl;
     }
 
-    void retornar_caixinha(float valor) {
+    void retornar_caixinha(char answer) {
+        if (answer == 'Y') {
+                saldo += caixinha;
+                double caixa_anterior = caixinha
+                caixinha -= caixinha;
+                string acao = "Foi retornado o valor total da caixinha de R$" + formatar_valor(caixa_anterior) + " . Saldo atual: R$" + formatar_valor(saldo) + ". Valor na caixinha: R$" + formatar_valor(caixinha);
+                registrar_acao(acao);
+                cout << acao << endl;
+        } else if (answer == 'N') {
         if (valor <= caixinha) {
             saldo += valor;
             caixinha -= valor;
-            cout << "Valor de R$" << valor << " retornado ao saldo." << endl;
+            string acao = "Valor de R$" + formatar_valor(valor) + " retornado ao saldo. Saldo atual: R$" + formatar_valor(saldo) + ". Valor na caixinha: R$" + formatar_valor(caixinha);
+            registrar_acao(acao);
+            cout << acao << endl;
         } else {
             cout << "Valor excede o montante na caixinha." << endl;
         }
     }
+
+    void mostrar_extrato() {
+        cout << "Ultimas 5 acoes realizadas:" << endl;
+        for (const auto& acao : historico) {
+            cout << acao << endl;
+        }
+    }
 };
+
+void mais_opcoes(ContaBancaria& conta) {
+    while (true) {
+        cout << "\n--- MAIS OPCOES ---\n";
+        cout << "1 - Ver extrato" << endl;
+        cout << "2 - Voltar ao menu" << endl;
+        cout << "0 - Sair" << endl;
+
+        int opcao;
+        cout << "Digite a opcao desejada: ";
+        cin >> opcao;
+        clear_screen();
+
+        switch (opcao) {
+            case 1:
+                conta.mostrar_extrato();
+                break;
+            case 2:
+                return;  
+            default:
+                cout << "Opcao invalida. Tente novamente." << endl;
+        }
+    }
+}
 
 int main() {
     int dia, mes;
@@ -154,6 +226,7 @@ int main() {
         cout << "7 - Verificar caixinha" << endl;
         cout << "8 - Retirar da caixinha" << endl;
         cout << "9 - Avancar o dia" << endl;
+        cout << "10 - Mais opcoes" << endl;
         cout << "0 - Sair" << endl;
 
         int opcao;
@@ -184,11 +257,11 @@ int main() {
                 minha_conta.sacar(valor_saque_credito, false);
                 break;
             case 5:
-                char yn;
-                cout << "Deseja pagar toda a fatura ? (Y/N): ";
-                cin >> yn;
-                yn = toupper(yn);
-                minha_conta.pagar_fatura(yn);
+                char pagar_total;
+                cout << "Deseja pagar a fatura total? (Y/N): ";
+                cin >> pagar_total;
+                pagar_total = toupper(pagar_total);
+                minha_conta.pagar_fatura(pagar_total);
                 break;
             case 6:
                 float valor_caixinha;
@@ -200,22 +273,22 @@ int main() {
                 minha_conta.verificar_caixinha();
                 break;
             case 8:
-                float valor_retirar_caixinha;
-                cout << "Digite o valor a retornar da caixinha ao saldo: R$";
-                cin >> valor_retirar_caixinha;
-                minha_conta.retornar_caixinha(valor_retirar_caixinha);
+                char retornar_total;
+                cout << "Deseja retornar todo valor da caixinha? (Y/N): ";
+                cin >> retornar_total;
+                retornar_total = toupper(retornar_total);
+                minha_conta.pagar_fatura(retornar_total);
                 break;
             case 9:
                 tie(dia, mes) = minha_conta.passar_dia(dia, mes);
-                cout << "Dia: " << dia << ", Mes: " << mes << endl;
+                break;
+            case 10:
+                mais_opcoes(minha_conta);
                 break;
             case 0:
-                cout << "Encerrando o aplicativo." << endl;
                 return 0;
             default:
-                cout << "Opcao inválida. Tente novamente." << endl;
+                cout << "Opcao invalida. Tente novamente." << endl;
         }
     }
-
-    return 0;
 }
