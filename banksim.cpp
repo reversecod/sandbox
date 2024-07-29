@@ -50,15 +50,29 @@ public:
         }
     }
 
-    void pagar_fatura(float valor) {
-        if (fatura >= valor) {
-            saldo -= valor;
-            limite_credito += valor;
-            fatura -= valor;
-            cout << "Pagamento de fatura de R$" << valor << " realizado. Saldo e credito atualizados." << endl;
-        } else {
-            cout << "Valor da fatura excede o valor a pagar." << endl;
-        }
+    void pagar_fatura(char answer) {
+        if (answer == 'Y' && saldo >= fatura) {
+            saldo -= fatura;
+            float valorpago = fatura;
+            limite_credito += fatura;
+            fatura -= fatura;
+            cout << "Pagamento total da fatura de R$" << valorpago << " realizado. Saldo e credito atualizados." << endl;
+        } else if (answer == 'Y' && saldo < fatura) {
+            cout << "Voce nao possui saldo o suficiente para pagar toda a fatura!";
+        } else if (answer == 'N') {
+            float valor;
+            cout << "Digite o valor a pagar da fatura: R$";
+            cin >> valor;
+                if (fatura >= valor) {
+                    saldo -= valor;
+                    limite_credito += valor;
+                    fatura -= valor;
+                    cout << "Pagamento de fatura de R$" << valor << " realizado. Saldo e credito atualizados." << endl;
+                } else {
+                    cout << "Valor da fatura excede o valor a pagar." << endl;
+                }
+        }else
+            cout << "Alternativa inválida!";   
 }
 
     void status_conta() {
@@ -170,10 +184,11 @@ int main() {
                 minha_conta.sacar(valor_saque_credito, false);
                 break;
             case 5:
-                float valor_pagar_fatura;
-                cout << "Digite o valor a pagar da fatura: R$";
-                cin >> valor_pagar_fatura;
-                minha_conta.pagar_fatura(valor_pagar_fatura);
+                char yn;
+                cout << "Deseja pagar toda a fatura ? (Y/N): ";
+                cin >> yn;
+                yn = toupper(yn);
+                minha_conta.pagar_fatura(yn);
                 break;
             case 6:
                 float valor_caixinha;
