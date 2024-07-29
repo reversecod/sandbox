@@ -1,31 +1,26 @@
 #include <iostream>
 
-// Define is_palindrome() here:
-bool is_palindrome(const std::string &text)
-{
+bool is_palindrome(const std::string& word){
 
-  std::string reversed_text = "";
+std::string reversed_word = "";
 
-  for (int i = text.size() - 1; i >= 0; i--)
-  {
-    reversed_text += text[i];
-  }
-
-  if (reversed_text == text)
+for(int i = word.size() - 1; i >= 0; i--){
+  reversed_word += word[i];
+}
+  if (reversed_word == word)
   {
     std::cout << "This word is a palindrome.\n";
-    return 0;
+    return true;
   }
-
-  std::cout << "This word is not a palindrome.\n";
-  return 0;
+    std::cout << "This word is not a palindrome.\n";
+    return false;   
 }
 
-int main()
-{
+int main(){
   std::string word;
-
-  std::cout << "Enter the word to check if it is a palindrome: ";
+  std::cout << "Enter the word that you want to see if it is a palindrome or not: ";
   std::cin >> word;
-  std::cout << is_palindrome(word) << "\n";
+  is_palindrome(word);
+
+  return 0;
 }
