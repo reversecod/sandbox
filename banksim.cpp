@@ -148,21 +148,27 @@ public:
 
     void retornar_caixinha(char answer) {
         if (answer == 'Y') {
-                saldo += caixinha;
-                double caixa_anterior = caixinha
-                caixinha -= caixinha;
-                string acao = "Foi retornado o valor total da caixinha de R$" + formatar_valor(caixa_anterior) + " . Saldo atual: R$" + formatar_valor(saldo) + ". Valor na caixinha: R$" + formatar_valor(caixinha);
-                registrar_acao(acao);
-                cout << acao << endl;
-        } else if (answer == 'N') {
-        if (valor <= caixinha) {
-            saldo += valor;
-            caixinha -= valor;
-            string acao = "Valor de R$" + formatar_valor(valor) + " retornado ao saldo. Saldo atual: R$" + formatar_valor(saldo) + ". Valor na caixinha: R$" + formatar_valor(caixinha);
+            saldo += caixinha;
+            float caixa_anterior = caixinha;
+            caixinha = 0;
+            string acao = "Foi retornado o valor total da caixinha de R$" + formatar_valor(caixa_anterior) + ". Saldo atual: R$" + formatar_valor(saldo) + ". Valor na caixinha: R$" + formatar_valor(caixinha);
             registrar_acao(acao);
             cout << acao << endl;
+        } else if (answer == 'N') {
+            float valor;
+            cout << "Digite o valor a retornar da caixinha: R$";
+            cin >> valor;
+            if (valor <= caixinha) {
+                saldo += valor;
+                caixinha -= valor;
+                string acao = "Valor de R$" + formatar_valor(valor) + " retornado ao saldo. Saldo atual: R$" + formatar_valor(saldo) + ". Valor na caixinha: R$" + formatar_valor(caixinha);
+                registrar_acao(acao);
+                cout << acao << endl;
+            } else {
+                cout << "Valor excede o montante na caixinha." << endl;
+            }
         } else {
-            cout << "Valor excede o montante na caixinha." << endl;
+            cout << "Alternativa invalida!" << endl;
         }
     }
 
@@ -277,7 +283,7 @@ int main() {
                 cout << "Deseja retornar todo valor da caixinha? (Y/N): ";
                 cin >> retornar_total;
                 retornar_total = toupper(retornar_total);
-                minha_conta.pagar_fatura(retornar_total);
+                minha_conta.retornar_caixinha(retornar_total);
                 break;
             case 9:
                 tie(dia, mes) = minha_conta.passar_dia(dia, mes);
