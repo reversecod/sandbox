@@ -28,7 +28,7 @@ int main() {
     int vetor[TAM];
 
     for (int i = 0; i < TAM; i++){
-        cout << "Digite o " << i + 1 << "° numero aleatorio: ";
+        cout << "Digite o " << i + 1 << "* numero aleatorio: ";
         cin >> vetor[i];
     }
 
